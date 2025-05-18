@@ -1,5 +1,5 @@
 const Note = require('../models/Note');
-
+const { validationResult } = require('express-validator');
 // Extract #tags
 function extractTags(content) {
   const regex = /#(\w+)/g;
@@ -29,6 +29,10 @@ async function resolveLinkedNotes(titles, userId) {
 }
 
 exports.createNote = async (req, res) => {
+  const errors = validationResult(req);
+if (!errors.isEmpty()) {
+  return res.status(400).json({ errors: errors.array() });
+}
   const { title, content } = req.body;
   const userId = req.user.id;
 
