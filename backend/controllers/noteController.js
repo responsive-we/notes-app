@@ -114,10 +114,43 @@ exports.searchNotes = async (req, res) => {
     };
 
     const notes = await Note.find(searchConditions)
-      .sort({ [sortBy]: order === 'desc' ? -1 : 1 });
+      .sort({ [sortBy]: order === 'desc' ? -1 : 1 }).sort({ pinned: -1, [sortBy]: order === 'desc' ? -1 : 1 });
 
     res.json(notes);
   } catch (err) {
     res.status(500).json({ message: 'Search failed', error: err.message });
   }
+};
+
+// Soft delete (move to trash)
+exports.trashNote = async (req, res) => {
+  const note = await Note.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.id },
+    { trashed: true },
+    { new: true }
+  );
+  res.json(note);
+};
+
+exports.restoreNote = async (req, res) => {
+  const note = await Note.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.id },
+    { trashed: false },
+    { new: true }
+  );
+  res.json(note);
+};
+
+exports.togglePin = async (req, res) => {
+  const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
+  note.pinned = !note.pinned;
+  await note.save();
+  res.json(note);
+};
+
+exports.toggleArchive = async (req, res) => {
+  const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
+  note.archived = !note.archived;
+  await note.save();
+  res.json(note);
 };

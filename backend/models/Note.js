@@ -18,7 +18,19 @@ const noteSchema = new mongoose.Schema({
   linkedNotes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Note'
-  }]
+  }],
+  trashed: {
+  type: Boolean,
+  default: false
+},
+pinned: {
+  type: Boolean,
+  default: false
+},
+archived: {
+  type: Boolean,
+  default: false
+}
 }, { timestamps: true });
 
 module.exports = mongoose.model('Note', noteSchema);
