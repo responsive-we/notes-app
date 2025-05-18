@@ -96,3 +96,28 @@ exports.deleteNote = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+exports.searchNotes = async (req, res) => {
+  const userId = req.user.id;
+  const { query = '', tag = '', sortBy = 'updatedAt', order = 'desc' } = req.query;
+
+  try {
+    const searchConditions = {
+      user: userId,
+      ...(query && {
+        $or: [
+          { title: new RegExp(query, 'i') },
+          { content: new RegExp(query, 'i') }
+        ]
+      }),
+      ...(tag && { tags: tag })
+    };
+
+    const notes = await Note.find(searchConditions)
+      .sort({ [sortBy]: order === 'desc' ? -1 : 1 });
+
+    res.json(notes);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed', error: err.message });
+  }
+};

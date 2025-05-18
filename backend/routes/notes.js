@@ -6,13 +6,14 @@ const {
   getNotes,
   getNoteById,
   updateNote,
-  deleteNote
+  deleteNote,
+  searchNotes
 } = require('../controllers/noteController');
 
+router.get('/search', auth, searchNotes);
 router.post('/', auth, createNote);
 router.get('/', auth, getNotes);
 router.get('/:id', auth, getNoteById);
 router.put('/:id', auth, updateNote);
 router.delete('/:id', auth, deleteNote);
-
 module.exports = router;
